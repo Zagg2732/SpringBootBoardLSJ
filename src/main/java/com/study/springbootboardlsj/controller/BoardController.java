@@ -1,10 +1,8 @@
 package com.study.springbootboardlsj.controller;
 
-import com.study.springbootboardlsj.dto.BoardDto;
-import com.study.springbootboardlsj.dto.FileDto;
+import com.study.springbootboardlsj.dto.*;
 import com.study.springbootboardlsj.service.BoardService;
 import com.study.springbootboardlsj.service.FileService;
-import com.study.springbootboardlsj.util.MD5Generator;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -43,7 +41,7 @@ public class BoardController {
 
     @GetMapping("/list")
     public String list(Model model, @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<BoardDto> boardDtoList = boardService.getBoardList2(pageable);
+        Page<BoardListResponseDto> boardDtoList = boardService.getBoardList(pageable);
         model.addAttribute("postList", boardDtoList);
         return "board/list.html";
     }
@@ -53,59 +51,33 @@ public class BoardController {
     }
 
     @PostMapping("/post")
-    public String write(@RequestParam("file") MultipartFile files, BoardDto boardDto) {
-        try {
-            String origFilename = files.getOriginalFilename();
-            String filename = new MD5Generator(origFilename).toString();
+    public String save(@RequestParam("file") MultipartFile files, BoardSaveRequestDto boardSaveRequestDto) {
 
-            String savePath = System.getProperty("user.dir") + File.separator + "files";
-            if(!new File(savePath).exists()) {
-                try {
-                    new File(savePath).mkdir();
-                }catch (Exception e) {
-                    e.getStackTrace();
-                }
-            }
-            String filePath = savePath + File.separator + filename;
-            files.transferTo(new File(filePath));
+        boardService.savePost(files, boardSaveRequestDto);
 
-            FileDto fileDto = new FileDto();
-            fileDto.setOrigFilename(origFilename);
-            fileDto.setFilename(filename);
-            fileDto.setFilePath(filePath);
-
-            Long fileId = fileService.saveFile(fileDto);
-            boardDto.setFileId(fileId);
-            boardService.savePost(boardDto);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
         return "redirect:/";
     }
 
     @GetMapping("/post/{id}")
     public String detail(@PathVariable("id") Long id, Model model) {
-        BoardDto boardDto = boardService.getPost(id);
-        FileDto fileDto = fileService.getFile(boardDto.getFileId());
-
-        model.addAttribute("post", boardDto);
-        model.addAttribute("filename", fileDto.getOrigFilename());
+        model.addAttribute("post", boardService.getPost(id));
         return "board/detail.html";
     }
 
     @GetMapping("/post/edit/{id}")
     public String edit(@PathVariable("id") Long id, Model model) {
-        BoardDto boardDto = boardService.getPost(id);
-        model.addAttribute("post", boardDto);
+        BoardResponseDto dto = boardService.getPost(id);
+        model.addAttribute("post", dto);
+
         return "board/edit.html";
     }
-
+/*
     @PutMapping("/post/edit/{id}")
     public String update(BoardDto boardDto) {
         boardService.savePost(boardDto);
         return "redirect:/";
     }
-
+*/
     @DeleteMapping("/post/{id}")
     public String delete(@PathVariable("id") Long id) {
         boardService.deletePost(id);

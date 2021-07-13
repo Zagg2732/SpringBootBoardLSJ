@@ -1,86 +1,76 @@
 package com.study.springbootboardlsj.service;
 
-import com.study.springbootboardlsj.domain.entity.Board;
-import com.study.springbootboardlsj.domain.repository.BoardRepository;
-import com.study.springbootboardlsj.dto.BoardDto;
+import com.study.springbootboardlsj.domain.board.Board;
+import com.study.springbootboardlsj.domain.board.BoardRepository;
+import com.study.springbootboardlsj.dto.*;
+import com.study.springbootboardlsj.util.MD5Generator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class BoardService {
-    private BoardRepository boardRepository;
 
-    public BoardService(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
+    private final BoardRepository boardRepository;
 
     @Transactional
-    public Long savePost(BoardDto boardDto) {
-        return boardRepository.save(boardDto.toEntity()).getId();
-    }
+    public Long savePost(MultipartFile files, BoardSaveRequestDto boardSaveRequestDto) {
 
-    @Transactional
-    public List<BoardDto> getBoardList() {
-        List<Board> boardList = boardRepository.findAll();
-        List<BoardDto> boardDtoList = new ArrayList<>();
+        if(!files.isEmpty()) {
+            try {
+                String origFilename = files.getOriginalFilename();
+                String filename = new MD5Generator(origFilename).toString();
 
-        for (Board board : boardList) {
-            BoardDto boardDto = BoardDto.builder()
-                    .id(board.getId())
-                    .author(board.getAuthor())
-                    .title(board.getTitle())
-                    .content(board.getContent())
-                    .createdDate(board.getCreatedDate())
-                    .build();
+                String savePath = System.getProperty("user.dir") + File.separator + "files";
+                if(!new File(savePath).exists()) {
+                    try {
+                        new File(savePath).mkdir();
+                    }catch (Exception e) {
+                        e.getStackTrace();
+                    }
+                }
+                String filePath = savePath + File.separator + filename;
+                files.transferTo(new File(filePath));
 
-            boardDtoList.add(boardDto);
+                boardSaveRequestDto.setFile(origFilename, filename, filePath);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+
         }
-        return boardDtoList;
+
+        return boardRepository.save(boardSaveRequestDto.toEntity()).getId();
     }
 
     @Transactional
-    public Page<BoardDto> getBoardList2(Pageable pageable) {
+    public Page<BoardListResponseDto> getBoardList(Pageable pageable) {
 
         Page<Board> boardList = boardRepository.findAll(pageable);
 
-        List<BoardDto> boardDtoL = new ArrayList<>();
-
-        for(Board board : boardList) {
-            BoardDto boardDto = BoardDto.builder()
-                    .id(board.getId())
-                    .author(board.getAuthor())
-                    .title(board.getTitle())
-                    .content(board.getContent())
-                    .createdDate(board.getCreatedDate())
-                    .build();
-            boardDtoL.add(boardDto);
-        }
-        Page<BoardDto> boardDtoList = new PageImpl<BoardDto>(boardDtoL, boardList.getPageable(), boardList.getTotalElements());
-
-        return boardDtoList;
+        return new PageImpl<BoardListResponseDto>(boardList.getContent().stream()
+                                                            .map(BoardListResponseDto::new)
+                                                            .collect(Collectors.toList()),
+                                                boardList.getPageable(),
+                                                boardList.getTotalElements());
     }
 
 
 
     @Transactional
-    public BoardDto getPost(Long id) {
-        Board board = boardRepository.findById(id).get();
+    public BoardResponseDto getPost(Long id) {
+        Board entity = boardRepository.findById(id).
+                orElseThrow(() -> new IllegalArgumentException("Not Found Post id = " + id));
 
-        BoardDto boardDto = BoardDto.builder()
-                .id(board.getId())
-                .author(board.getAuthor())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .fileId(board.getFileId())
-                .createdDate(board.getCreatedDate())
-                .build();
-        return boardDto;
+        return new BoardResponseDto(entity);
     }
 
     @Transactional

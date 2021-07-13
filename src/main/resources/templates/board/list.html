@@ -31,7 +31,7 @@
                 <span th:text="${post.author}"></span>
             </td>
             <td>
-                <span th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                <span th:text="${#temporals.format(post.modifiedDate, 'yyyy-MM-dd HH:mm:ss')}"></span>
             </td>
         </tr>
         </tbody>
@@ -52,12 +52,12 @@
                 <li class="page-item"><a class="page-link" th:href="@{'/list?page=' + ${postList.pageable.pageNumber}}">Previous</a></li>
             </th:block>
 
-            <th:block th:each="num : ${#numbers.sequence(1, postList.totalPages)}">
-                <th:block th:if="${num != postList.pageable.pageNumber + 1}">
-                    <li class="page-item"><a class="page-link" th:href="@{'/list?page=' + ${num}}">[[${num}]]</a></li>
+            <th:block th:each="num : ${#numbers.sequence(0, postList.totalPages)}">
+                <th:block th:if="${num != postList.pageable.pageNumber}">
+                    <li class="page-item"><a class="page-link" th:href="@{'/list?page=' + ${num + 1}}">[[${num} + 1]]</a></li>
                 </th:block>
-                <th:block th:unless="${num != postList.pageable.pageNumber + 1}">
-                    <li class="page-item active"><a class="page-link">[[${num}]]</a></li>
+                <th:block th:unless="${num != postList.pageable.pageNumber}">
+                    <li class="page-item active"><a class="page-link">[[${num} + 1]]</a></li>
                 </th:block>
             </th:block>
 

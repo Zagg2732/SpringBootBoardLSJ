@@ -1,6 +1,6 @@
 package com.study.springbootboardlsj.dto;
 
-import com.study.springbootboardlsj.domain.entity.Board;
+import com.study.springbootboardlsj.domain.board.Board;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BoardDto {
 
-    private Long id;
     private String author;
     private String title;
     private String content;
@@ -21,11 +20,9 @@ public class BoardDto {
 
     public Board toEntity() {
         Board build = Board.builder()
-                .id(id)
                 .author(author)
                 .title(title)
                 .content(content)
-                .fileId(fileId)
                 .build();
 
         return build;
@@ -33,7 +30,6 @@ public class BoardDto {
 
     @Builder
     public BoardDto(Long id, String author, String title, String content, Long fileId, LocalDateTime createdDate, LocalDateTime modifiedDate) {
-        this.id = id;
         this.author = author;
         this.title = title;
         this.content = content;

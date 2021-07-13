@@ -29,6 +29,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     runtimeOnly 'org.webjars:bootstrap:5.0.1'
+    runtimeOnly 'org.webjars:jquery:3.5.1'
 }
 
 test {
