@@ -45,5 +45,18 @@ public class Board extends org.ex.study.domain.BaseTimeEntity {
         this.filePath = filePath;
     }
 
+    //update시 file이 들어왔을때
+    public void update(String title, String content, String origFilename, String filename, String filePath) {
+        this.title = title;
+        this.content = content;
+        this.origFilename = origFilename;
+        this.filename = filename;
+        this.filePath = filePath;
+    }
 
+    //update시 file이 없을때
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

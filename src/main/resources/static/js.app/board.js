@@ -5,12 +5,8 @@ var index = {
             _this.save();
         });
 
-        $('#btn-update').on('click', function () {
+        $('#btnEdit').on('click', function () {
             _this.update();
-        });
-
-        $('#btn-delete').on('click', function () {
-            _this.delete();
         });
     },
     save: function () {
@@ -36,16 +32,14 @@ var index = {
         });
     },
     update: function () {
-        var data = {
-            title: $('#title').val(),
-            content: $('#content').val()
-        };
+        var frm = $('#editFrm')[0];
+        var data = new FormData(frm);
 
-        var id = $('#id').val();
+        $('#btnEdit').prop('disabled', true);
 
         $.ajax({
             type: 'PUT',
-            url: '/api/v1/posts/' + id,
+            url: '/posts/edit/' + id,
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(data)
@@ -55,23 +49,7 @@ var index = {
         }).fail(function (error) {
             alert(JSON.stringify(error));
         });
-    },
-    delete: function () {
-        var id = $('#id').val();
-
-        $.ajax({
-            type: 'DELETE',
-            url: '/api/v1/posts/' + id,
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8'
-        }).done(function () {
-            alert('글이 삭제되었습니다.');
-            window.location.href = '/';
-        }).fail(function (error) {
-            alert(JSON.stringify(error));
-        });
     }
-
 };
 
 index.init();

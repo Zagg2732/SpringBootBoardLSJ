@@ -1,4 +1,4 @@
-package com.study.springbootboardlsj.dto;
+package com.study.springbootboardlsj.web.dto;
 
 
 import com.study.springbootboardlsj.domain.board.Board;

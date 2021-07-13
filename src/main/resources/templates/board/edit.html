@@ -8,8 +8,8 @@
 <body>
 <header th:insert="common/header.html"></header>
 <div class="container">
-  <form th:action="@{'/post/edit/' + ${post.id}}" method="post">
-    <input type="hidden" name="_method" value="put"/>
+  <form action="" method="post" enctype="multipart/form-data" id="editFrm">
+  <input type="hidden" name="_method" value="put"/>
     <input type="hidden" name="id" th:value="${post.id}"/>
     <div class="form-group row">
       <label for="inputTitle" class="col-sm-2 col-form-label"><strong>제목</strong></label>
@@ -34,20 +34,21 @@
       <div class="col-sm-10">
         <div class="custom-file" id="inputFile">
           <input name="file" type="file" class="custom-file-input" id="customFile">
-          <label class="custom-file-label" for="customFile">파일을 선택해 주세요.</label>
+          <label class="custom-file-label" for="customFile"></label>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="col-auto mr-auto"></div>
       <div class="col-auto">
-        <input class="btn btn-primary" type="submit" role="button" value="수정">
+        <input class="btn btn-primary" type="submit" role="button" value="수정" id="btnEdit">
       </div>
     </div>
   </form>
 </div>
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/bootstrap/5.0.1/js/bootstrap.min.js"></script>
+<script src="/static/js/app/board.js"></script>
 <script th:inline="javascript">
   $(function (){
     var filename = [[${post.origFilename}]];
